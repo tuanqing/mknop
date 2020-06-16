@@ -1,10 +1,9 @@
 name: N1-OpenWrt-CI
 
 on:
-  schedule:
-    - cron: '0 22 * * *'
-  repository_dispatch:
-    types: run
+  push:
+    paths:
+      - '.github/workflows/build-CI.yml'
     
 env:
   TZ: Asia/Shanghai
@@ -12,7 +11,7 @@ env:
 jobs:
   build:
     runs-on: [ubuntu-18.04]
-    if: github.event_name == 'schedule' || github.event.action == 'run'
+    if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
       - name: Checkout
