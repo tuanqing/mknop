@@ -3,14 +3,18 @@
 tmp="./tmp"
 out="./out"
 device="phicomm-n1" # don't modify it
-image_name='$device-k$kernel-openwrt-firmware'
+image_name='$device-v$kernel-openwrt-firmware'
 
 tag() {
-    echo -e " [ \033[1;32m$1\033[0m ]"
+    echo -e " [ \033[1;36m$1\033[0m ]"
 }
 
 process() {
-    echo -e " [ \033[1;32m$kernel\033[0m ] \033[32m$1\033[0m $2"
+    echo -e " [ \033[1;32m$kernel\033[0m ] $1"
+}
+
+die() {
+    error "$1" && exit 1
 }
 
 error() {
@@ -19,17 +23,13 @@ error() {
 
 loop_setup() {
     loop=$(losetup -P -f --show "$1")
-    [ $loop ] || {
-        error "you used a lower version linux, 
- please update the util-linux package or upgrade your system." && exit 1
-    }
+    [ $loop ] || die "you used a lower version Linux, 
+ please update the util-linux package or upgrade your system."
 }
 
 cleanup() {
-    local mounts=$(grep "$tmp/.*/mount" /proc/mounts | grep -oE "(loop[0-9]|loop[0-9][0-9])" | sort | uniq)
-
-    for x in $mounts; do
-        umount -f /dev/${x}* 2>/dev/null
+    for x in $(grep $(pwd) /proc/mounts | grep -oE "loop[0-9]{1,2}" | sort | uniq); do
+        umount -f /dev/${x}p[1-2] 2>/dev/null
         losetup -d "/dev/$x" 2>/dev/null
     done
     rm -rf $tmp
@@ -38,19 +38,19 @@ cleanup() {
 extract_openwrt() {
     local firmware="./openwrt/$firmware"
     local suffix="${firmware##*.}"
-    mount="$tmp/$kernel/mount"
-    root="$tmp/$kernel/root"
+    mount="$tmp/mount"
+    root_comm="$tmp/root_comm"
 
-    mkdir -p $mount $root
+    mkdir -p $mount $root_comm
     while true; do
         case "$suffix" in
         tar)
-            tar -xf $firmware -C $root
+            tar -xf $firmware -C $root_comm
             break
             ;;
         gz)
             if (ls $firmware | grep -q ".tar.gz$"); then
-                tar -xzf $firmware -C $root
+                tar -xzf $firmware -C $root_comm
                 break
             else
                 tmp_firmware="$tmp/${firmware##*/}"
@@ -62,58 +62,65 @@ extract_openwrt() {
             ;;
         img)
             loop_setup $firmware
-            if ! (mount -r ${loop}p2 $mount); then
-                error "mount image faild!" && exit 1
+            if ! mount -r ${loop}p2 $mount; then
+                die "mount ${loop}p2 failed!"
             fi
-            cp -r $mount/* $root && sync
+            cp -r $mount/* $root_comm && sync
             umount -f $mount
             losetup -d $loop
             break
             ;;
         ext4)
-            if ! (mount -r -o loop $firmware $mount); then
-                error "mount image faild!" && exit 1
+            if ! mount -r -o loop $firmware $mount; then
+                die "mount $firmware failed!"
             fi
-            cp -r $mount/* $root && sync
+            cp -r $mount/* $root_comm && sync
             umount -f $mount
             break
             ;;
         *)
-            error "unsupported firmware format, this script only support 
- rootfs.tar[.gz], ext4-factory.img[.gz], root.ext4[.gz] six format." && exit 1
+            die "unsupported firmware format, this script only supports 
+ rootfs.tar[.gz], ext4-factory.img[.gz], root.ext4[.gz] six formats."
             ;;
         esac
     done
 
-    rm -rf $root/lib/modules/*/
+    rm -rf $root_comm/lib/modules/*/
 }
 
 extract_armbian() {
     kernel_dir="./armbian/$device/kernel/$kernel"
     root_dir="./armbian/$device/root"
+    root="$tmp/$kernel/root"
     boot="$tmp/$kernel/boot"
 
-    mkdir -p $boot
+    mkdir -p $root $boot
+
     tar -xzf "$kernel_dir/../../boot-common.tar.gz" -C $boot
-    tar -xzf "$kernel_dir/../../firmware.tar.gz" -C $root
     tar -xzf "$kernel_dir/kernel.tar.gz" -C $boot
+    tar -xzf "$kernel_dir/../../firmware.tar.gz" -C $root
     tar -xzf "$kernel_dir/modules.tar.gz" -C $root
-    [ `ls $root_dir | wc -w` != 0 ] && cp -r $root_dir/* $root
+
+    cp -r $root_comm/* $root
+    [ $(ls $root_dir | wc -w) != 0 ] && cp -r $root_dir/* $root
+    sync
 }
 
 utils() {
-    cd $root
-    # add other operations here 👇
+    (
+        cd $root
+        # add other operations below
 
-    echo 'pwm_meson' > etc/modules.d/pwm-meson
-    sed -i '/kmodloader/i\\tulimit -n 51200\n' etc/init.d/boot
-    sed -i 's/ttyAMA0/ttyAML0/' etc/inittab
-    sed -i 's/ttyS0/tty0/' etc/inittab
+        echo 'pwm_meson' > etc/modules.d/pwm-meson
+        if ! grep -q 'ulimit -n' etc/init.d/boot; then
+            sed -i '/kmodloader/i\tulimit -n 51200\n' etc/init.d/boot
+        fi
+        sed -i 's/ttyAMA0/ttyAML0/' etc/inittab
+        sed -i 's/ttyS0/tty0/' etc/inittab
 
-    mkdir -p boot run opt
-    chown -R 0:0 ./
-
-    cd $work
+        mkdir -p boot run opt
+        chown -R 0:0 ./
+    )
 }
 
 make_image() {
@@ -134,15 +141,15 @@ format_image() {
 }
 
 copy2image() {
-    local bootfs="$mount/bootfs"
-    local rootfs="$mount/rootfs"
+    local bootfs="$mount/$kernel/bootfs"
+    local rootfs="$mount/$kernel/rootfs"
 
     mkdir -p $bootfs $rootfs
-    if ! (mount ${loop}p1 $bootfs); then
-        error "mount image faild!" && exit 1
+    if ! mount ${loop}p1 $bootfs; then
+        die "mount ${loop}p1 failed!"
     fi
-    if ! (mount ${loop}p2 $rootfs); then
-        error "mount image faild!" && exit 1
+    if ! mount ${loop}p2 $rootfs; then
+        die "mount ${loop}p2 failed!"
     fi
 
     cp -r $boot/* $bootfs
@@ -175,6 +182,7 @@ get_kernels() {
 
     local kernel_root="./armbian/$device/kernel"
     [ -d $kernel_root ] && {
+        work=$(pwd)
         cd $kernel_root
         for x in $(ls ./); do
             [[ -f "$x/kernel.tar.gz" && -f "$x/modules.tar.gz" ]] && kernels[i++]=$x
@@ -186,13 +194,14 @@ get_kernels() {
 
 show_kernels() {
     if ((${#kernels[*]} == 0)); then
-        error "no file in kernel folder!" && exit 1
+        die "no file in kernel directory!"
     else
-        show_list "${kernels[*]}"
+        show_list "${kernels[*]}" "kernel"
     fi
 }
 
 show_list() {
+    echo " $2: "
     i=0
     for x in $1; do
         echo " ($((++i))) $x"
@@ -200,24 +209,21 @@ show_list() {
 }
 
 choose_firmware() {
-    echo " firmware: "
-    show_list "${firmwares[*]}"
+    show_list "${firmwares[*]}" "firmware"
     choose_files ${#firmwares[*]} "firmware"
     firmware=${firmwares[opt]}
-    tag $firmware && echo 
+    tag $firmware && echo
 }
 
 choose_kernel() {
-    echo " kernel: "
     show_kernels
     choose_files ${#kernels[*]} "kernel"
     kernel=${kernels[opt]}
-    tag $kernel && echo 
+    tag $kernel && echo
 }
 
 choose_files() {
     local len=$1
-    local type=$2
     opt=
 
     if ((len == 1)); then
@@ -225,7 +231,7 @@ choose_files() {
     else
         i=0
         while true; do
-            echo && read -p " select the $type above and press Enter to select the first one: " opt
+            echo && read -p " select $2 above, and press Enter to select the first one: " opt
             [ $opt ] || opt=1
             if ((opt >= 1 && opt <= len)) 2>/dev/null; then
                 let opt--
@@ -244,11 +250,11 @@ set_rootsize() {
     rootsize=
 
     while true; do
-        read -p " input the the rootfs partition size, defaults to 512m, do not less than 256m
+        read -p " input the rootfs partition size, defaults to 512m, do not less than 256m
  if you don't know what this means, press Enter to keep default: " rootsize
         [ $rootsize ] || rootsize=512
         if ((rootsize >= 256)) 2>/dev/null; then
-            tag $rootsize && echo 
+            tag $rootsize && echo
             break
         else
             ((i++ >= 2)) && exit 1
@@ -276,12 +282,8 @@ EOF
 }
 
 ##
-if ((UID != 0)); then
-    error "please run this script as root!" && exit 1
-fi
-
-work=$(pwd)
-echo " Welcome to phicomm-n1 openwrt image tools!"
+[ $(id -u) = 0 ] || die "please run this script as root!"
+clear && echo -e " Welcome to phicomm-n1 openwrt image tools!\n"
 
 cleanup
 get_firmwares
@@ -295,8 +297,7 @@ while [ "$1" ]; do
     -c | --clean)
         cleanup
         rm -rf $out
-        echo -e " \033[32mclean up\033[0m 👌"
-        exit
+        echo " clean up ok!" && exit
         ;;
     -d | --default)
         : ${rootsize:=512}
@@ -309,7 +310,7 @@ while [ "$1" ]; do
         if [ $kernel = "all" ] 2>/dev/null || [ -f "$kernel_dir/kernel.tar.gz" ]; then
             shift
         else
-            error "invalid kernel \"$2\" 🙄" && exit 1
+            die "invalid kernel [ $2 ]!!"
         fi
         ;;
     --kernel)
@@ -320,52 +321,54 @@ while [ "$1" ]; do
         if ((rootsize >= 256)) 2>/dev/null; then
             shift
         else
-            error "invalid size \"$2\" 🙄" && exit 1
+            die "invalid size [ $2 ]!!"
         fi
         ;;
     *)
-        error "invalid option \"$1\" 🙄" && exit 1
+        die "invalid option [ $1 ]!!"
         ;;
     esac
     shift
 done
 
 if ((${#firmwares[*]} == 0)); then
-    error "no file in openwrt folder!" && exit 1
+    die "no file in openwrt directory!"
 fi
 if ((${#kernels[*]} == 0)); then
-    error "no file in kernel folder!" && exit 1
+    die "no file in kernel directory!"
 fi
 
 [ $firmware ] && echo " firmware   ==>   $firmware"
 [ $kernel ] && echo " kernel     ==>   $kernel"
 [ $rootsize ] && echo " rootsize   ==>   $rootsize"
-[ $firmware ] || [ $kernel ] || [ $rootsize ] && echo 
+[ $firmware ] || [ $kernel ] || [ $rootsize ] && echo
 
 [ $firmware ] || choose_firmware
 [ $kernel ] || choose_kernel
 [ $rootsize ] || set_rootsize
 
 [ $kernel != "all" ] && kernels=("$kernel")
+
+process "extract openwrt files "
+extract_openwrt
+
 for x in ${kernels[*]}; do
-{
-    kernel=$x
-    process "extract openwrt files "
-    extract_openwrt
-    process "extract armbian files "
-    extract_armbian
-    utils
-    process "make openwrt image "
-    make_image
-    process "format openwrt image "
-    format_image
-    process "copy files to image "
-    copy2image
-    process "generate success" 😘
-} &
+    {
+        kernel=$x
+        process "extract armbian files "
+        extract_armbian
+        utils
+        process "make openwrt image "
+        make_image
+        process "format openwrt image "
+        format_image
+        process "copy files to image "
+        copy2image
+        process "generate success 😘"
+    } &
 done
 
 wait
 
 cleanup
-chmod -R 777 $out
+chown -R 1000:1000 $out
