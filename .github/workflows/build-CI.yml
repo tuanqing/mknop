@@ -86,8 +86,8 @@ jobs:
             cd ../
             echo "::set-env name=firmware_$((++i))::$filename"
           done
-          
-          cp lede/.config out/config.seed
+      
+          cp ../lede/.config ./config.seed
 
       - name: Upload firmware @ kernel 4.18.7
         uses: actions/upload-artifact@master
