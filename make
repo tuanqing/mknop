@@ -283,7 +283,7 @@ EOF
 
 ##
 [ $(id -u) = 0 ] || die "please run this script as root!"
-clear && echo -e " Welcome to phicomm-n1 openwrt image tools!\n"
+echo -e " Welcome to phicomm-n1 openwrt image tools!\n"
 
 cleanup
 get_firmwares
