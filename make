@@ -371,4 +371,4 @@ done
 wait
 
 cleanup
-chown -R 1000:1000 $out
+chmod -R 777 $out
