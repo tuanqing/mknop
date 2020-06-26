@@ -1,7 +1,7 @@
 # 自动构建斐讯N1 OpenWrt固件脚本
 # Automatically Build OpenWrt Firmware for PHICOMM N1
 
-**制作脚本已部署到Github Action，真正实现一栈式全自动构建，每天早上六点准时为你构建，无须自行制作，下载即可用**
+**制作脚本已部署到Github Action，真正实现一栈式全自动构建，每周六早上六点准时为你构建，无须自行制作，下载即可用**
 
 [![N1-OpenWrt-CI](https://github.com/tuanqing/mknop/workflows/N1-OpenWrt-CI/badge.svg?branch=master)](https://github.com/tuanqing/mknop/actions)  
  👆👆👆&nbsp; &nbsp; 戳上面查看构建状态
