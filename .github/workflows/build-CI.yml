@@ -35,11 +35,9 @@ jobs:
       - name: Install feeds
         run: |
           cd lede
-          
           git clone https://github.com/tuanqing/lede-mod
           git clone https://github.com/tuanqing/install-program package/install-program
           svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-theme-bootstrap-mod package/luci-theme-bootstrap-mod
-
           git apply lede-mod/lede/*.patch
           
           ./scripts/feeds update -a
@@ -62,7 +60,6 @@ jobs:
           EOF
 
           make defconfig
-          ./scripts/feeds update -a
           cat .config
 
       - name: Compile openwrt
@@ -73,12 +70,14 @@ jobs:
 
       - name: Build firmware
         run: |
+          mkdir out
+          cp lede/.config out/config.seed
           cp lede/bin/targets/*/*/*.tar.gz ./openwrt
           sudo ./make -d
           
           cd out
           i=0
-          for x in $(ls .); do
+          for x in $(ls -d */); do
             cd $x
             filename=$(ls .)
             filename=${filename%.*}
@@ -86,8 +85,6 @@ jobs:
             cd ../
             echo "::set-env name=firmware_$((++i))::$filename"
           done
-      
-          cp ../lede/.config ./config.seed
 
       - name: Upload firmware @ kernel 4.18.7
         uses: actions/upload-artifact@master
