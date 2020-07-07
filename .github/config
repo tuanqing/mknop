@@ -25,11 +25,11 @@ git apply lede-mod/luci/*.patch --directory=feeds/luci
 [ $? = 0 ] && echo "ok"
 
 echo "patching luci-theme-bootstrap-mod"
-git apply lede-mod/bootstrap/*.patch \
-    --directory=package/luci-theme-bootstrap-mod
+git apply lede-mod/bootstrap/*.patch --directory=package/luci-theme-bootstrap-mod
 [ $? = 0 ] && echo "ok"
 
 zzz="package/lean/default-settings/files/zzz-default-settings"
+
 sed -i 's/samba/samba4/' $zzz
 sed -i 's#openwrt.proxy.ustclug.org#mirrors.bfsu.edu.cn\\/openwrt#' $zzz
 sed -i "/openwrt_luci/i sed -i '/Lienol/d' /etc/opkg/distfeeds.conf" $zzz
@@ -56,21 +56,19 @@ cat >.config <<EOF
 CONFIG_TARGET_armvirt=y
 CONFIG_TARGET_armvirt_64=y
 CONFIG_TARGET_armvirt_64_Default=y
-##
-CONFIG_BRCMFMAC_SDIO=y
 ## luci app
 CONFIG_PACKAGE_luci-app-cifs-mount=y
 CONFIG_PACKAGE_luci-app-docker=y
 CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-ttyd=y
-##
 ## luci theme
 CONFIG_PACKAGE_luci-theme-bootstrap-mod=y
-##
 ## remove
 # CONFIG_PACKAGE_luci-app-webadmin is not set
 # CONFIG_UnblockNeteaseMusic_NodeJS is not set
-##
+## others
+CONFIG_BRCMFMAC_SDIO=y
+CONFIG_LUCI_LANG_en=y
 EOF
 
 make defconfig
