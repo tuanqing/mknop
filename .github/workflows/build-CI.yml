@@ -4,10 +4,11 @@ on:
   schedule:
     - cron: '0 22 * * 5'
   repository_dispatch:
-    types: run
+    types: 'run'
     
 env:
-  TZ: Asia/Shanghai
+  CONFIG: '.github/config'
+  TZ: 'Asia/Shanghai'
 
 jobs:
   build:
@@ -32,35 +33,10 @@ jobs:
         run: |
           git clone https://github.com/coolsnowwolf/lede
 
-      - name: Install feeds
+      - name: Install feeds & Make config
         run: |
-          cd lede
-          git clone https://github.com/tuanqing/lede-mod
-          git clone https://github.com/tuanqing/install-program package/install-program
-          svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-theme-bootstrap-mod package/luci-theme-bootstrap-mod
-          git apply lede-mod/lede/*.patch
-          
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          
-          git apply lede-mod/luci/*.patch --directory=feeds/luci
-          git apply lede-mod/bootstrap/*.patch --directory=package/luci-theme-bootstrap-mod
-
-      - name: Make config
-        run: |
-          cd lede
-
-          cat > .config <<EOF
-          CONFIG_TARGET_armvirt=y
-          CONFIG_TARGET_armvirt_64=y
-          CONFIG_TARGET_armvirt_64_DEVICE_phicomm_n1=y
-          CONFIG_BRCMFMAC_SDIO=y
-          CONFIG_PACKAGE_luci-app-haproxy-tcp=y
-          # CONFIG_UnblockNeteaseMusic_NodeJS is not set
-          EOF
-
-          make defconfig
-          cat .config
+          chmod +x $CONFIG
+          ./$CONFIG
 
       - name: Compile openwrt
         run: |
@@ -70,14 +46,12 @@ jobs:
 
       - name: Build firmware
         run: |
-          mkdir out
-          cp lede/.config out/config.seed
           cp lede/bin/targets/*/*/*.tar.gz ./openwrt
           sudo ./make -d
-          
-          cd out
+
           i=0
-          for x in $(ls -d */); do
+          cd out
+          for x in $(ls .); do
             cd $x
             filename=$(ls .)
             filename=${filename%.*}
@@ -98,14 +72,14 @@ jobs:
           name: ${{ env.firmware_2 }}
           path: out/4.19.106
       
-      - name: Upload firmware @ kernel 5.4.43
+      - name: Upload firmware @ kernel 5.4.50
         uses: actions/upload-artifact@master
         with:
           name: ${{ env.firmware_3 }}
-          path: out/5.4.43
+          path: out/5.4.50
 
       - name: Upload config file
         uses: actions/upload-artifact@master
         with:
           name: config
-          path: out/config.seed
+          path: lede/.config

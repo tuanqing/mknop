@@ -1,0 +1,58 @@
+#!/bin/bash
+
+cd lede
+
+git clone https://github.com/tuanqing/install-program \
+    package/install-program
+svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-theme-bootstrap-mod \
+    package/luci-theme-bootstrap-mod
+
+sed -i '/src-git luci/ s/^/#/' feeds.conf.default
+sed -i '/packages/ s/^/#/' feeds.conf.default
+sed -i '/src-git helloworld/ s/#//' feeds.conf.default
+sed -i '/src-git packages/a src-git packages https://github.com/Lienol/openwrt-packages;dev-master' feeds.conf.default
+sed -i '/src-git luci/a src-git luci https://github.com/Lienol/openwrt-luci.git;dev-18.06' feeds.conf.default
+
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+git clone https://github.com/tuanqing/lede-mod
+git apply lede-mod/luci/*.patch --directory=feeds/luci
+git apply lede-mod/bootstrap/*.patch --directory=package/luci-theme-bootstrap-mod
+
+zzz="package/lean/default-settings/files/zzz-default-settings"
+sed -i 's/samba/samba4/' $zzz
+sed -i 's#openwrt.proxy.ustclug.org#mirrors.bfsu.edu.cn\\/openwrt#' $zzz
+sed -i "/openwrt_luci/i sed -i '/Lienol/d' /etc/opkg/distfeeds.conf" $zzz
+sed -i "/openwrt_luci/i sed -i '/helloworld/d' /etc/opkg/distfeeds.conf" $zzz
+
+packages=" \
+cypress-firmware-43430-sdio cypress-firmware-43435-sdio kmod-brcmfmac wpad \
+kmod-fs-ext4 kmod-fs-vfat kmod-fs-exfat dosfstools e2fsprogs ntfs-3g \
+kmod-usb-storage kmod-usb-storage-extras kmod-usb-storage-uas \
+kmod-usb-net kmod-usb-net-asix-ax88179 kmod-usb-net-rtl8150 kmod-usb-net-rtl8152 \
+blkid lsblk parted fdisk losetup lscpu htop iperf3 curl \
+lm-sensors lm-sensors-detect install-program \
+luci-app-samba4 luci-app-cifs-mount luci-app-docker \
+luci-theme-bootstrap-mod 
+"
+
+sed -i 's/FEATURES+=cpiogz ext4 ramdisk squashfs targz/FEATURES+=targz/' \
+    target/linux/armvirt/Makefile
+for x in $packages; do
+    sed -i "/DEFAULT_PACKAGES/ s/$/ $x/" target/linux/armvirt/Makefile
+done
+
+# sed -i '/CPU usage/i msgid \"CPU Status\"\nmsgstr "CPU 状态"\n' feeds/luci/modules/luci-base/po/zh-cn/base.po
+
+cat >.config <<EOF
+CONFIG_TARGET_armvirt=y
+CONFIG_TARGET_armvirt_64=y
+CONFIG_TARGET_armvirt_64_Default=y
+CONFIG_BRCMFMAC_SDIO=y
+# CONFIG_PACKAGE_luci-app-webadmin is not set
+# CONFIG_UnblockNeteaseMusic_NodeJS is not set
+EOF
+
+make defconfig
+cat .config
