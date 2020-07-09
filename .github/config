@@ -7,17 +7,10 @@ git clone https://github.com/tuanqing/install-program \
 svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-theme-bootstrap-mod \
     package/luci-theme-bootstrap-mod
 
-# sed -i '/src-git luci/ s/^/#/' feeds.conf.default
-# sed -i '/src-git packages/ s/^/#/' feeds.conf.default
-# sed -i '/src-git helloworld/ s/#//' feeds.conf.default
-# sed -i '/src-git packages/a src-git packages https://github.com/Lienol/openwrt-packages.git;dev-master' \
-#     feeds.conf.default
-# sed -i '/src-git luci/a src-git luci https://github.com/Lienol/openwrt-luci.git;dev-18.06' \
-#     feeds.conf.default
-
 cat > feeds.conf.default<<EOF
-src-git packages https://git.openwrt.org/feed/packages.git
+# src-git packages https://git.openwrt.org/feed/packages.git
 # src-git luci https://git.openwrt.org/project/luci.git;openwrt-19.07
+src-git packages https://github.com/Lienol/openwrt-packages.git;dev-master
 src-git luci https://github.com/Lienol/openwrt-luci.git;dev-18.06
 src-git routing https://git.openwrt.org/feed/routing.git
 src-git telephony https://git.openwrt.org/feed/telephony.git
@@ -30,16 +23,6 @@ rm -rf package/lean/luci-app-ttyd
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-
-git clone https://github.com/tuanqing/lede-mod
-
-echo "patching feeds luci"
-git apply lede-mod/luci/*.patch --directory=feeds/luci
-[ $? = 0 ] || echo "failed"
-
-echo "patching luci-theme-bootstrap-mod"
-git apply lede-mod/bootstrap/*.patch --directory=package/luci-theme-bootstrap-mod
-[ $? = 0 ] || echo "failed"
 
 zzz="package/lean/default-settings/files/zzz-default-settings"
 
@@ -80,7 +63,6 @@ CONFIG_PACKAGE_luci-theme-bootstrap-mod=y
 # CONFIG_UnblockNeteaseMusic_NodeJS is not set
 ## others
 CONFIG_BRCMFMAC_SDIO=y
-CONFIG_LUCI_LANG_en=y
 EOF
 
 make defconfig
