@@ -16,9 +16,8 @@ svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-theme-bootstr
 #     feeds.conf.default
 
 cat > feeds.conf.default<<EOF
-# src-git packages https://git.openwrt.org/feed/packages.git
+src-git packages https://git.openwrt.org/feed/packages.git
 # src-git luci https://git.openwrt.org/project/luci.git;openwrt-19.07
-src-git packages https://github.com/Lienol/openwrt-packages.git;dev-master
 src-git luci https://github.com/Lienol/openwrt-luci.git;dev-18.06
 src-git routing https://git.openwrt.org/feed/routing.git
 src-git telephony https://git.openwrt.org/feed/telephony.git
@@ -36,11 +35,11 @@ git clone https://github.com/tuanqing/lede-mod
 
 echo "patching feeds luci"
 git apply lede-mod/luci/*.patch --directory=feeds/luci
-[ $? = 0 ] && echo "ok"
+[ $? = 0 ] || echo "failed"
 
 echo "patching luci-theme-bootstrap-mod"
 git apply lede-mod/bootstrap/*.patch --directory=package/luci-theme-bootstrap-mod
-[ $? = 0 ] && echo "ok"
+[ $? = 0 ] || echo "failed"
 
 zzz="package/lean/default-settings/files/zzz-default-settings"
 
@@ -73,7 +72,6 @@ CONFIG_TARGET_armvirt_64_Default=y
 ## luci app
 CONFIG_PACKAGE_luci-app-baidupcs-web=y
 CONFIG_PACKAGE_luci-app-cifs-mount=y
-CONFIG_PACKAGE_luci-app-docker=y
 CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-ttyd=y
 ## luci theme
