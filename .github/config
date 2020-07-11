@@ -42,12 +42,12 @@ sed -i "/openwrt_luci/i sed -i '/Lienol/d' /etc/opkg/distfeeds.conf" $zzz
 sed -i "/openwrt_luci/i sed -i '/helloworld/d' /etc/opkg/distfeeds.conf" $zzz
 
 packages=" \
-brcmfmac-firmware-43430-sdio brcmfmac-firmware-43455-sdio kmod-brcmfmac wpad-openssl \
+brcmfmac-firmware-43430-sdio brcmfmac-firmware-43455-sdio kmod-brcmfmac wpad \
 kmod-fs-ext4 kmod-fs-vfat kmod-fs-exfat dosfstools e2fsprogs ntfs-3g \
-kmod-usb-storage kmod-usb-storage-extras kmod-usb-storage-uas kmod-usb2 \
+kmod-usb-storage kmod-usb-storage-extras kmod-usb-storage-uas \
 kmod-usb-net kmod-usb-net-asix-ax88179 kmod-usb-net-rtl8150 kmod-usb-net-rtl8152 \
 blkid lsblk parted fdisk losetup lscpu htop iperf3 curl \
-lm-sensors lm-sensors-detect install-program 
+lm-sensors install-program 
 "
 
 sed -i '/FEATURES+=/ { s/cpiogz //; s/ext4 //; s/ramdisk //; s/squashfs //; }' \
