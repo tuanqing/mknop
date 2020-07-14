@@ -6,6 +6,10 @@ git clone https://github.com/tuanqing/install-program \
     package/install-program
 svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-theme-bootstrap-mod \
     package/luci-theme-bootstrap-mod
+svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-theme-argon-dark-mod \
+    package/luci-theme-argon-dark-mod
+svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-theme-argon-light-mod \
+    package/luci-theme-argon-light-mod
 
 cat > feeds.conf.default<<EOF
 # src-git packages https://git.openwrt.org/feed/packages.git
@@ -17,9 +21,7 @@ src-git telephony https://git.openwrt.org/feed/telephony.git
 src-git helloworld https://github.com/fw876/helloworld
 EOF
 
-rm -rf package/lean/samba4
-rm -rf package/lean/luci-app-samba4
-rm -rf package/lean/luci-app-ttyd
+rm -rf package/lean/{samba4,luci-app-samba4,luci-app-ttyd}
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -43,7 +45,7 @@ sed -i "/openwrt_luci/i sed -i '/helloworld/d' /etc/opkg/distfeeds.conf" $zzz
 
 packages=" \
 brcmfmac-firmware-43430-sdio brcmfmac-firmware-43455-sdio kmod-brcmfmac wpad \
-kmod-fs-ext4 kmod-fs-vfat kmod-fs-exfat dosfstools e2fsprogs ntfs-3g \
+kmod-fs-ext4 kmod-fs-vfat kmod-fs-exfat dosfstools e2fsprogs antfs-mount \
 kmod-usb-storage kmod-usb-storage-extras kmod-usb-storage-uas \
 kmod-usb-net kmod-usb-net-asix-ax88179 kmod-usb-net-rtl8150 kmod-usb-net-rtl8152 \
 blkid lsblk parted fdisk losetup lscpu htop iperf3 curl \
@@ -63,14 +65,17 @@ CONFIG_TARGET_armvirt=y
 CONFIG_TARGET_armvirt_64=y
 CONFIG_TARGET_armvirt_64_Default=y
 ## luci app
-CONFIG_PACKAGE_luci-app-baidupcs-web=y
+CONFIG_PACKAGE_luci-app-aria2=y
 CONFIG_PACKAGE_luci-app-cifs-mount=y
 CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-ttyd=y
 ## luci theme
+CONFIG_PACKAGE_luci-theme-argon-dark-mod=y
+CONFIG_PACKAGE_luci-theme-argon-light-mod=y
 CONFIG_PACKAGE_luci-theme-bootstrap-mod=y
 ## remove
 # CONFIG_UnblockNeteaseMusic_NodeJS is not set
+# CONFIG_PACKAGE_luci-app-webadmin is not set
 ## others
 CONFIG_BRCMFMAC_SDIO=y
 CONFIG_LUCI_LANG_en=y
