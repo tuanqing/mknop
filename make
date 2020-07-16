@@ -96,9 +96,9 @@ extract_armbian() {
 
     mkdir -p $root $boot
 
-    tar -xzf "$kernel_dir/../../boot-common.tar.gz" -C $boot
+    tar -xzf "./armbian/boot-common.tar.gz" -C $boot
     tar -xzf "$kernel_dir/kernel.tar.gz" -C $boot
-    tar -xzf "$kernel_dir/../../firmware.tar.gz" -C $root
+    tar -xzf "./armbian/firmware.tar.gz" -C $root
     tar -xzf "$kernel_dir/modules.tar.gz" -C $root
 
     cp -r $root_comm/* $root
