@@ -63,7 +63,9 @@ extract_openwrt() {
         img)
             loop_setup $firmware
             if ! mount -r ${loop}p2 $mount; then
-                die "mount ${loop}p2 failed!"
+                if ! mount -r ${loop}p1 $mount; then
+                    die "mount ${loop} failed!"
+                fi
             fi
             cp -r $mount/* $root_comm && sync
             umount -f $mount
