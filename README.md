@@ -18,7 +18,7 @@
    ```
 
    **注意：  
-   一键安装到 emmc 脚本已迁移至 openwrt package，解决需要自选依赖的问题。使用方法如下，悉知！！**
+   一键安装到 emmc 脚本已迁移至 openwrt package。使用方法如下，悉知！！**
 
    **用法**：  
    1、`git clone https://github.com/tuanqing/install-program package/install-program`  
@@ -32,17 +32,17 @@
 
 3. 克隆仓库到本地  
    `git clone https://github.com/tuanqing/mknop` 
-4. 将你编译好的固件拷贝到 openwrt 目录( 可以复制多个固件 )
+4. 将你编译好的固件拷贝到 openwrt 目录( 可复制多个 )
 5. 使用 sudo 执行脚本  
    `sudo ./make` 
 6. 按照提示操作，如，选择你要制作的固件、选择内核版本、设置 ROOTFS 分区大小等  
-   如果你不了解这些设置项，请直接回车即可，或者直接执行  
+   如果你不了解这些设置项，请按回车保持默认，或者直接执行  
    `sudo ./make -d` 
 7. 等待构建完成，默认输出文件夹为 out
 8. 写盘启动，写盘工具推荐 [Etcher](https://www.balena.io/etcher/)
 
 **注意**：  
-1、待构建的固件格式只支持 rootfs.tar[.gz]、 ext4-factory.img[.gz]、root.ext4[.gz] 6种，推荐使用rootfs.tar.gz 格式  
+1、待构建的固件格式只支持 rootfs.tar[.gz]、 ext4-factory.img[.gz]、root.ext4[.gz] 6种，推荐使用 rootfs.tar.gz 格式  
 2、默认不会清理 out 目录，请手动删除，或使用 `sudo ./make -c` 清理
 
 ## 特别说明
