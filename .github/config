@@ -18,6 +18,8 @@ src-git luci https://github.com/Lienol/openwrt-luci.git;dev-18.06
 src-git routing https://git.openwrt.org/feed/routing.git
 src-git telephony https://git.openwrt.org/feed/telephony.git
 src-git helloworld https://github.com/fw876/helloworld
+src-git kenzok https://github.com/kenzok8/openwrt-packages
+src-git small https://github.com/kenzok8/small
 EOF
 
 rm -rf package/lean/{samba4,luci-app-samba4,luci-app-ttyd}
@@ -58,7 +60,7 @@ sed -i '/PKG_SOURCE_VERSION:=/d' package/lean/shadowsocksr-libev/Makefile
 sed -i '/PKG_SOURCE_URL/a PKG_SOURCE_VERSION:=4799b312b8244ec067b8ae9ba4b85c877858976c' \
     package/lean/shadowsocksr-libev/Makefile
 
-sed -i 's/ipaddr:-"192.168.1.1"/ipaddr:-"192.168.1.10"/' package/base-files/files/bin/config_generate
+sed -i 's/ipaddr:-"192.168.1.1"/ipaddr:-"10.10.10.252"/' package/base-files/files/bin/config_generate
 
 cat >.config <<-EOF
 ## target
@@ -66,21 +68,16 @@ CONFIG_TARGET_armvirt=y
 CONFIG_TARGET_armvirt_64=y
 CONFIG_TARGET_armvirt_64_Default=y
 ## luci app
-CONFIG_PACKAGE_luci-app-adbyby-plus=y
-CONFIG_PACKAGE_luci-app-aria2=y
-CONFIG_PACKAGE_luci-app-cifs-mount=y
-CONFIG_PACKAGE_luci-app-samba4=y
-CONFIG_PACKAGE_luci-app-ttyd=y
+CONFIG_PACKAGE_luci-app-passwall=y
+CONFIG_PACKAGE_luci-app-smartdns=y
 ## luci theme
-CONFIG_PACKAGE_luci-theme-argon-dark-mod=y
-CONFIG_PACKAGE_luci-theme-argon-light-mod=y
-CONFIG_PACKAGE_luci-theme-bootstrap-mod=y
+CONFIG_PACKAGE_luci-theme-atmaterial=y
 ## remove
 # CONFIG_UnblockNeteaseMusic_NodeJS is not set
 # CONFIG_PACKAGE_luci-app-webadmin is not set
 ## others
 CONFIG_BRCMFMAC_SDIO=y
-CONFIG_LUCI_LANG_en=y
+CONFIG_LUCI_LANG_zh-cn=y
 EOF
 
 make defconfig
