@@ -108,6 +108,88 @@ extract_armbian() {
     sync
 }
 
+extract_kernel() {
+    cleanup
+    choose_firmware
+
+    local firmware="./openwrt/$firmware"
+    local suffix="${firmware##*.}"
+
+    while true; do
+        case "$suffix" in
+        xz)
+            echo " decompress ${firmware##*/}"
+            mkdir tmp
+            tmp_firmware="$tmp/${firmware##*/}"
+            tmp_firmware="${tmp_firmware%.*}"
+            xz -dkc $firmware > $tmp_firmware
+            firmware="$tmp_firmware"
+            suffix="${firmware##*.}"
+            ;;
+        img)
+            loop_setup "$firmware"
+            break
+            ;;
+        *)
+            die "unsupported firmware format!!"
+            ;;
+        esac
+    done
+
+    boot="$tmp/boot"
+    root="$tmp/root"
+    mkdir -p $boot $root/lib
+
+    mount ${loop}p1 $boot
+    [ $? = 0 ] || die "mount ${loop}p1 failed!"
+    mount ${loop}p2 $root
+    [ $? = 0 ] || die "mount ${loop}p2 failed!"
+
+    version=$(ls $root/lib/modules/)
+    kversion=$(echo $version | grep -oE '^[4-5].[0-9]{1,2}.[0-9]+')
+
+    kernel_root="./armbian/$device/kernel"
+    ext_boot="$tmp/$version/boot"
+    ext_root="$tmp/$version/root"
+
+    mkdir -p "$ext_boot" "$ext_root/lib"
+
+    echo " kernel v$version"
+
+    cp -r $boot/{dtb,config*,initrd.img*,System.map*,uInitrd,zImage} "$ext_boot"
+    (
+        cd "$ext_boot/dtb/amlogic"
+        cp *phicomm-n1.dtb meson-gxl-s905d-phicomm-n1.dtb.bak
+        rm -f *.dtb
+        mv meson-gxl-s905d-phicomm-n1.dtb.bak meson-gxl-s905d-phicomm-n1.dtb
+        cd ../../
+        echo " package kernel.tar.xz"
+        tar -cJf kernel.tar.xz *
+    )
+
+    cp -r "$root/lib/modules" "$ext_root/lib"
+    (
+        cd "$ext_root/lib/modules/$version"
+        rm -f *.ko
+        find . -type f -name '*.ko' -exec ln -s {} . \;
+        cd ../../../
+        echo " package modules.tar.xz"
+        tar -cJf modules.tar.xz lib/
+    )
+
+    [[ -f $ext_boot/kernel.tar.xz && -f $ext_root/modules.tar.xz ]] && {
+        mv $ext_boot/kernel.tar.xz "$tmp/$version"
+        mv $ext_root/modules.tar.xz "$tmp/$version"
+        rm -rf $ext_boot $ext_root
+        chown 1000:1000 -R "$tmp/$version"
+        mv "$tmp/$version" "$tmp/$kversion"
+        mv -bi "$tmp/$kversion" "$kernel_root"
+        echo " done!"
+    }
+
+    cleanup
+}
+
 utils() {
     (
         cd $root
@@ -277,6 +359,8 @@ Options:
   -d, --default     use the default configuration, which means that use the first firmware in the "openwrt" directory, \
 the kernel version is "all", and the rootfs partition size is 512m
 
+  -e                extract kernel from the firmware of the "openwrt" directory
+
   -k=VERSION        set the kernel version, which must be in the "kernel" directory
      , -k all       build all the kernel version
      , -k latest    build the latest kernel version
@@ -301,17 +385,23 @@ get_kernels
 while [ "$1" ]; do
     case "$1" in
     -h | --help)
-        usage && exit
+        usage
+        exit
         ;;
     -c | --clean)
         cleanup
         rm -rf $out
-        echo " clean up ok!" && exit
+        echo " clean up ok!"
+        exit
         ;;
     -d | --default)
         : ${rootsize:=512}
         : ${firmware:="${firmwares[0]}"}
         : ${kernel:="all"}
+        ;;
+    -e)
+        extract_kernel
+        exit
         ;;
     -k)
         kernel=$2
@@ -326,7 +416,8 @@ while [ "$1" ]; do
         fi
         ;;
     --kernel)
-        show_kernels && exit
+        show_kernels
+        exit
         ;;
     -s | --size)
         rootsize=$2
@@ -337,7 +428,9 @@ while [ "$1" ]; do
         fi
         ;;
     *)
-        die "invalid option [ $1 ]!!"
+        error "invalid option [ $1 ]!!\n"
+        usage
+        exit 1
         ;;
     esac
     shift

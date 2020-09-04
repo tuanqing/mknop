@@ -78,11 +78,12 @@
       `sudo ./make -k latest` ，使用最新内核  
       `sudo ./make -s 512` ，将 ROOTFS 分区大小设置为 512M  
       `sudo ./make -d -s 512` ，使用默认，并将分区大小设置为 512M  
-      `sudo ./make -d -s 512 -k 5.4.60` ，使用默认，并将分区大小设置为 512M，内核版本设置为 5.4.60
+      `sudo ./make -d -s 512 -k 5.4.60` ，使用默认，并将分区大小设置为 512M，内核版本设置为 5.4.60  
+      `sudo ./make -e`，从 openwrt 目录中提取内核，仅支持 .img 格式和 xz 压缩的 .img 格式
 
 * 自定义
    * 使用自定义内核  
-     参照内核文件夹( `armbian/phicomm-n1/kernel/xxx` )下的文件提取 kernel.tar.xz、modules.tar.xz
+     使用 `sudo ./make -e`，从 openwrt 目录中提取内核
 
    * 添加自定义文件  
       向 armbian/phicomm-n1/root 目录添加你的文件
