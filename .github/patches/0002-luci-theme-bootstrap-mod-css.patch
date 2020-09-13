@@ -1,7 +1,7 @@
-diff --git a/htdocs/luci-static/bootstrap_mod/cascade.css b/htdocs/luci-static/bootstrap_mod/cascade.css
+diff --git a/themes/luci-theme-bootstrap-mod/htdocs/luci-static/bootstrap_mod/cascade.css b/themes/luci-theme-bootstrap-mod/htdocs/luci-static/bootstrap_mod/cascade.css
 index 2e8aaf8..ec1f65d 100644
---- a/htdocs/luci-static/bootstrap_mod/cascade.css
-+++ b/htdocs/luci-static/bootstrap_mod/cascade.css
+--- a/themes/luci-theme-bootstrap-mod/htdocs/luci-static/bootstrap_mod/cascade.css
++++ b/themes/luci-theme-bootstrap-mod/htdocs/luci-static/bootstrap_mod/cascade.css
 @@ -131,9 +131,9 @@ header {
      font-weight: 700;
      line-height: 40px;
@@ -110,10 +110,10 @@ index 2e8aaf8..ec1f65d 100644
  /* luci18 */
  .cbi-section-table-titles.named::before {
      content: attr(data-title) " ";
-diff --git a/htdocs/luci-static/bootstrap_mod/mobile.css b/htdocs/luci-static/bootstrap_mod/mobile.css
+diff --git a/themes/luci-theme-bootstrap-mod/htdocs/luci-static/bootstrap_mod/mobile.css b/themes/luci-theme-bootstrap-mod/htdocs/luci-static/bootstrap_mod/mobile.css
 index 5c48504..692dd39 100644
---- a/htdocs/luci-static/bootstrap_mod/mobile.css
-+++ b/htdocs/luci-static/bootstrap_mod/mobile.css
+--- a/themes/luci-theme-bootstrap-mod/htdocs/luci-static/bootstrap_mod/mobile.css
++++ b/themes/luci-theme-bootstrap-mod/htdocs/luci-static/bootstrap_mod/mobile.css
 @@ -1,14 +1,14 @@
 -@media screen and (max-width: 1600px) {
 +/* @media screen and (max-width: 1600px) {
