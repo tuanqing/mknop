@@ -15,7 +15,7 @@ src-git telephony https://git.openwrt.org/feed/telephony.git
 src-git helloworld https://github.com/fw876/helloworld.git
 EOF
 
-rm -rf package/lean/{samba4,luci-app-samba4,luci-app-ttyd}
+rm -rf package/lean/{samba4,luci-app-samba4,luci-app-ttyd,luci-theme-argon}
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -62,6 +62,7 @@ CONFIG_PACKAGE_luci-app-aria2=y
 CONFIG_PACKAGE_luci-app-cifs-mount=y
 CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-ttyd=y
+CONFIG_PACKAGE_luci-app-kodexplorer=y
 ## luci theme
 CONFIG_PACKAGE_luci-theme-bootstrap-mod=y
 CONFIG_PACKAGE_luci-theme-argon=y
