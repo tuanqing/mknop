@@ -3,12 +3,6 @@
 cd lede
 
 git clone https://github.com/tuanqing/install-program package/install-program
-svn co https://github.com/xiaorouji/openwrt-package/trunk/lienol/luci-theme-bootstrap-mod \
-    package/luci-theme-bootstrap-mod
-svn co https://github.com/xiaorouji/openwrt-package/trunk/lienol/luci-theme-argon-dark-mod \
-    package/luci-theme-argon-dark-mod
-svn co https://github.com/xiaorouji/openwrt-package/trunk/lienol/luci-theme-argon-light-mod \
-    package/luci-theme-argon-light-mod
 
 cat >feeds.conf.default <<-EOF
 # src-git packages https://git.openwrt.org/feed/packages.git
@@ -17,7 +11,7 @@ src-git packages https://github.com/Lienol/openwrt-packages.git;dev-master
 src-git luci https://github.com/Lienol/openwrt-luci.git;dev-18.06
 src-git routing https://git.openwrt.org/feed/routing.git
 src-git telephony https://git.openwrt.org/feed/telephony.git
-src-git helloworld https://github.com/fw876/helloworld
+src-git helloworld https://github.com/fw876/helloworld.git
 EOF
 
 rm -rf package/lean/{samba4,luci-app-samba4,luci-app-ttyd}
@@ -25,11 +19,7 @@ rm -rf package/lean/{samba4,luci-app-samba4,luci-app-ttyd}
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-patches="../.github/patches"
-echo "patching feeds luci"
-git apply $patches/luci/*.patch --directory=feeds/luci
-echo "patching luci-theme-bootstrap-mod"
-git apply $patches/bootstrap/*.patch --directory=package/luci-theme-bootstrap-mod
+git apply ../.github/patches/{0001*,0002*}.patch --directory=feeds/luci
 
 zzz="package/lean/default-settings/files/zzz-default-settings"
 sed -i 's/samba/samba4/' $zzz
@@ -72,8 +62,6 @@ CONFIG_PACKAGE_luci-app-cifs-mount=y
 CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-ttyd=y
 ## luci theme
-CONFIG_PACKAGE_luci-theme-argon-dark-mod=y
-CONFIG_PACKAGE_luci-theme-argon-light-mod=y
 CONFIG_PACKAGE_luci-theme-bootstrap-mod=y
 ## remove
 # CONFIG_UnblockNeteaseMusic_NodeJS is not set
