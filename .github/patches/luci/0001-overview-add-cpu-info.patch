@@ -1,17 +1,8 @@
 diff --git a/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm b/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
-index a83f3d6..6294ac7 100644
+index fa8aef3..343fa71 100644
 --- a/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 +++ b/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
-@@ -54,7 +54,7 @@
- 			connmax    = conn_max,
- 			conncount  = conn_count,
- 			wifinets   = stat.wifi_networks(),
--			cpu_free   = tonumber(luci.sys.exec("top -n1 | grep -m1 -i 'cpu' | awk '{print $8}' | grep -Eo '[0-9.]+'")),
-+			cpu_free   = tonumber(luci.sys.exec("top -n 1 | grep -m 1 'CPU:' | awk -F '%' '{ print $4 }' | awk '{ print $2 }'"))
- 		}
- 
- 		if wan then
-@@ -376,8 +376,8 @@
+@@ -373,8 +373,8 @@
  
  	<div class="table" width="100%">
  		<div class="tr"><div class="td left" width="33%"><%:Hostname%></div><div class="td left"><%=luci.sys.hostname() or "?"%></div></div>
