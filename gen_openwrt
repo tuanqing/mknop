@@ -8,7 +8,8 @@
 
 tmp="./tmp"
 out="./out"
-minsize=512 # min root partition size
+# min root partition size
+minsize=512
 
 die() {
     echo -e "${red}e${normal} => $1"
@@ -159,7 +160,8 @@ unpack_openwrt() {
                 path=$tmp/${firmware%.*}
                 suffix=${path##*.}
             ;;
-            gz) # special for .tar.gz
+            gz) 
+                # special for .tar.gz
                 if ls $path | grep -q '.tar.gz$'; then
                     tar xzf $path -C $common_root
                     break
@@ -178,7 +180,7 @@ unpack_openwrt() {
                     cp -r $mount/${loop_seq}p1/* $common_root
                 elif [ -d $mount/${loop_seq} ]; then
                     cp -r $mount/${loop_seq}/* $common_root
-                #
+                ##
                 else
                     die "error unpack $path"
                 fi
@@ -365,7 +367,7 @@ extract_kernel() {
     cp -r $mount/${loop_seq}p2/lib/modules $tmp/$version/root/lib
 
     (
-        cd tmp/$version/root/lib/modules/*/
+        cd $tmp/$version/root/lib/modules/*/
         rm -rf *.ko
         find ./ -type f -name '*.ko' -exec ln -s {} ./ \;
     )
