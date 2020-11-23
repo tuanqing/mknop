@@ -54,7 +54,7 @@ jobs:
           cp lede/bin/targets/*/*/*.tar.gz ./openwrt
           sudo ./gen_openwrt -d -k latest
           
-          devices=("phicomm-n1" "vplus" "beikeyun" "l1pro" "s905x3")
+          devices=("phicomm-n1")
           cd out
           for x in ${devices[*]}; do
             cd $x
@@ -69,27 +69,3 @@ jobs:
         with:
           name: ${{ env.firmware_phicomm-n1 }}
           path: out/phicomm-n1
-
-      - name: Upload firmware @ vplus
-        uses: actions/upload-artifact@main
-        with:
-          name: ${{ env.firmware_vplus }}
-          path: out/vplus
-
-      - name: Upload firmware @ beikeyun
-        uses: actions/upload-artifact@main
-        with:
-          name: ${{ env.firmware_beikeyun }}
-          path: out/beikeyun
-
-      - name: Upload firmware @ l1pro
-        uses: actions/upload-artifact@main
-        with:
-          name: ${{ env.firmware_l1pro }}
-          path: out/l1pro
-
-      - name: Upload firmware @ s905x3
-        uses: actions/upload-artifact@main
-        with:
-          name: ${{ env.firmware_s905x3 }}
-          path: out/s905x3
