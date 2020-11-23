@@ -5,8 +5,6 @@ cd lede
 (
     cd package
     git clone https://github.com/tuanqing/install-program
-    git clone https://github.com/tuanqing/openwrt-mentohust
-    git clone https://github.com/tuanqing/luci-app-mentohust
     git clone https://github.com/jerrykuku/luci-theme-argon -b 18.06
     git clone https://github.com/lisaac/luci-lib-docker
     git clone https://github.com/lisaac/luci-app-dockerman
@@ -45,7 +43,6 @@ packages=" \
 brcmfmac-firmware-43430-sdio brcmfmac-firmware-43455-sdio kmod-brcmfmac wpad \
 kmod-fs-ext4 kmod-fs-vfat kmod-fs-exfat dosfstools e2fsprogs antfs-mount \
 kmod-usb2 kmod-usb3 kmod-usb-storage kmod-usb-storage-extras kmod-usb-storage-uas \
-kmod-usb-net kmod-usb-net-asix-ax88179 kmod-usb-net-rtl8150 kmod-usb-net-rtl8152 \
 blkid lsblk parted fdisk cfdisk losetup resize2fs tune2fs pv unzip \
 lscpu htop iperf3 curl lm-sensors install-program 
 "
@@ -62,7 +59,7 @@ sed -i '/PKG_SOURCE_VERSION:=/d' package/lean/shadowsocksr-libev/Makefile
 sed -i '/PKG_SOURCE_URL/a PKG_SOURCE_VERSION:=4799b312b8244ec067b8ae9ba4b85c877858976c' \
     package/lean/shadowsocksr-libev/Makefile
 
-# sed -i 's/ipaddr:-"192.168.1.1"/ipaddr:-"192.168.1.10"/' package/base-files/files/bin/config_generate
+sed -i 's/ipaddr:-"192.168.1.1"/ipaddr:-"192.168.123.2"/' package/base-files/files/bin/config_generate
 
 cat >.config <<-EOF
 ## target
@@ -79,7 +76,6 @@ CONFIG_PACKAGE_luci-app-kodexplorer=y
 CONFIG_PACKAGE_luci-app-mentohust=y
 CONFIG_PACKAGE_luci-app-dockerman=y
 ## luci theme
-CONFIG_PACKAGE_luci-theme-bootstrap-mod=y
 CONFIG_PACKAGE_luci-theme-argon=y
 ## remove
 # CONFIG_UnblockNeteaseMusic_NodeJS is not set
