@@ -1,9 +1,16 @@
 name: OpenWrt-CI
 
 on:
-  schedule:
-    - cron: '0 22 * * 5'
+on:
+  repository_dispatch:
   workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+#  schedule:
+#    - cron: 0 8 * * 5
     
 env:
   TZ: 'Asia/Shanghai'
