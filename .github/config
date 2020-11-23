@@ -52,10 +52,15 @@ CONFIG_TARGET_armvirt_64_Default=y
 ## luci app
 CONFIG_PACKAGE_luci-app-adbyby-plus=y
 CONFIG_PACKAGE_luci-app-ttyd=y
+# Extra packages
+CONFIG_PACKAGE_automount=y
+CONFIG_PACKAGE_autosamba=y
 ## luci theme
 CONFIG_PACKAGE_luci-theme-argon=y
+CONFIG_PACKAGE_luci-theme-material=y
 ## remove
 # CONFIG_PACKAGE_luci-app-webadmin is not set
+# CONFIG_PACKAGE_luci-app-nlbwmon is not set
 ## others
 CONFIG_BRCMFMAC_SDIO=y
 EOF
