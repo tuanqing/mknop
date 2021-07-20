@@ -7,8 +7,8 @@ cd lede
     git clone https://github.com/tuanqing/install-program
     # git clone https://github.com/tuanqing/openwrt-mentohust
     # git clone https://github.com/tuanqing/luci-app-mentohust
-    # git clone https://github.com/jerrykuku/luci-app-jd-dailybonus
-    # git clone https://github.com/jerrykuku/luci-app-ttnode
+    git clone https://github.com/jerrykuku/luci-app-jd-dailybonus
+    git clone https://github.com/jerrykuku/luci-app-ttnode
     git clone https://github.com/jerrykuku/luci-theme-argon -b 18.06
     git clone https://github.com/jerrykuku/luci-app-argon-config
 #     git clone https://github.com/lisaac/luci-lib-docker
@@ -79,15 +79,16 @@ CONFIG_TARGET_armvirt_64=y
 CONFIG_TARGET_armvirt_64_Default=y
 ## luci app
 CONFIG_PACKAGE_luci-app-adbyby-plus=y
-CONFIG_PACKAGE_luci-app-aria2=y
-CONFIG_PACKAGE_luci-app-cifs-mount=y
+# CONFIG_PACKAGE_luci-app-aria2=y
+# CONFIG_PACKAGE_luci-app-cifs-mount=y
 CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-ttyd=y
 # CONFIG_PACKAGE_luci-app-mentohust=y
-# CONFIG_PACKAGE_luci-app-jd-dailybonus=y
+CONFIG_PACKAGE_luci-app-jd-dailybonus=y
 # CONFIG_PACKAGE_luci-app-ttnode=y
 # CONFIG_PACKAGE_luci-app-dockerman=y
 CONFIG_PACKAGE_luci-app-argon-config=y
+CONFIG_PACKAGE_luci-app-helloworld=y
 ## luci theme
 CONFIG_PACKAGE_luci-theme-bootstrap-mod=y
 CONFIG_PACKAGE_luci-theme-argon=y
